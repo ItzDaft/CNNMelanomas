@@ -7,7 +7,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(BASE_DIR, "data", "raw")
 PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
 
-# Ajustado a los nombres exactos de tus carpetas
 ISIC_RAW = os.path.join(RAW_DIR, "ISIC_2019")
 HAM_RAW = os.path.join(RAW_DIR, "HAM10000") 
 PH2_RAW = os.path.join(RAW_DIR, "PH2", "PH2Dataset")
@@ -103,7 +102,6 @@ def cargar_ph2(ruta_txt):
 def buscar_imagen_ph2(base_dir, name):
     for raiz, directorios, archivos in os.walk(base_dir):
         for archivo in archivos:
-            # Buscamos el archivo exacto sin importar en qué subcarpeta esté escondido
             if archivo == f"{name}.bmp" or archivo == f"{name}_Dermoscopic_Image.bmp":
                 return os.path.join(raiz, archivo)
     return None

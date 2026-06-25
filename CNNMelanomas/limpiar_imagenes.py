@@ -14,7 +14,7 @@ def limpiar_imagen_medica(ruta_origen, ruta_destino):
     # Convertir a escala de grises para crear la mascara
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    # Crear un kernel (matriz) en forma de cruz para buscar vellos
+    # Crear un kernel
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (17, 17))
     
     # Aplicar Black-Hat para aislar los filamentos oscuros
@@ -23,10 +23,9 @@ def limpiar_imagen_medica(ruta_origen, ruta_destino):
     # Crear la mascara final aislando los pixeles muy marcados
     _, mask = cv2.threshold(blackhat, 10, 255, cv2.THRESH_BINARY)
     
-    # Aplicar Inpainting: Borrar vellos usando algoritmo TELEA
+    # Borrar vellos usando algoritmo TELEA
     img_sin_vello = cv2.inpaint(img, mask, 3, cv2.INPAINT_TELEA)
 
-    # Convertir al espacio de color LAB (L=Luminosidad, A/B=Colores)
     lab = cv2.cvtColor(img_sin_vello, cv2.COLOR_BGR2LAB)
     l, a, b = cv2.split(lab)
     
@@ -34,7 +33,6 @@ def limpiar_imagen_medica(ruta_origen, ruta_destino):
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     cl = clahe.apply(l)
     
-    # Volver a unir los canales y regresar a formato RGB 
     limg = cv2.merge((cl, a, b))
     final_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
 

@@ -20,7 +20,6 @@ BATCH_SIZE = 32
 EPOCHS = 20
 
 # 2. GENERADORES DE DATOS (Ingesta)
-# Redimensionamos y normalizamos los píxeles a valores entre 0 y 1
 train_datagen = ImageDataGenerator(rescale=1./255)
 val_datagen = ImageDataGenerator(rescale=1./255)
 
@@ -29,7 +28,7 @@ train_generator = train_datagen.flow_from_directory(
     TRAIN_DIR,
     target_size=IMG_SIZE,
     batch_size=BATCH_SIZE,
-    class_mode='binary' # 0 para benigno, 1 para melanoma
+    class_mode='binary' 
 )
 
 print("Cargando datos de validación...")
@@ -42,7 +41,6 @@ val_generator = val_datagen.flow_from_directory(
 )
 
 # 3. CÁLCULO DE PESOS DE CLASE
-# Obtenemos las etiquetas reales del generador
 etiquetas_entrenamiento = train_generator.classes
 
 pesos = compute_class_weight(
@@ -55,21 +53,18 @@ pesos_clase = {0: pesos[0], 1: pesos[1]}
 print(f"Pesos calculados -> Benigno: {pesos_clase[0]:.2f}, Melanoma: {pesos_clase[1]:.2f}")
 
 # 4. CONSTRUCCIÓN DE LA ARQUITECTURA (Transfer Learning)
-# Importamos ResNet50 sin la última capa (include_top=False)
 base_model = ResNet50(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
 
 # Congelamos las capas base para no destruir el conocimiento previo
 base_model.trainable = False
 
-# Construimos nuestra propia "cabeza" de clasificación
 x = base_model.output
 x = GlobalAveragePooling2D()(x)
-x = Dropout(0.5)(x) # Previene el sobreajuste apagando el 50% de las neuronas aleatoriamente
+x = Dropout(0.5)(x) 
 prediccion = Dense(1, activation='sigmoid')(x)
 
 model = Model(inputs=base_model.input, outputs=prediccion)
 
-# Compilamos el modelo
 model.compile(
     optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
     loss='binary_crossentropy',
@@ -77,10 +72,9 @@ model.compile(
 )
 
 # 5. ENTRENAMIENTO Y CALLBACKS
-# Guardar el mejor modelo automáticamente
 checkpoint = ModelCheckpoint(
     'baseline_resnet50.h5', 
-    monitor='val_recall', # Priorizamos guardar el modelo con mejor sensibilidad
+    monitor='val_recall', 
     save_best_only=True, 
     mode='max',
     verbose=1
